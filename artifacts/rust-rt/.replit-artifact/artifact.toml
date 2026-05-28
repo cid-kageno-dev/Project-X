@@ -1,0 +1,18 @@
+kind = "api"
+previewPath = "/ws"
+title = "Rust Realtime Service"
+version = "1.0.0"
+id = "artifacts/rust-rt"
+router = "path"
+
+[[services]]
+name = "Rust Realtime"
+paths = ["/ws", "/api/metrics"]
+localPort = 8083
+
+[services.development]
+run = "sh -c 'cd /home/runner/workspace/artifacts/rust-rt && cargo run'"
+
+[services.env]
+PORT = "8083"
+RUST_LOG = "info"

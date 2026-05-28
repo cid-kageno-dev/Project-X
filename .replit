@@ -1,0 +1,87 @@
+modules = ["nodejs-24", "postgresql-16", "go-1.25", "rust-stable", "python-3.12"]
+
+[deployment]
+router = "application"
+deploymentTarget = "autoscale"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Rust Realtime Service"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Node Git Service"
+
+[[workflows.workflow]]
+name = "Rust Realtime Service"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sh -c 'cd /home/runner/workspace/artifacts/rust-rt && PORT=8083 cargo run'"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Node Git Service"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sh -c 'cd /home/runner/workspace/artifacts/node-git && PORT=8084 node src/index.js'"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[[ports]]
+localPort = 8008
+externalPort = 8008
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 80
+
+[[ports]]
+localPort = 8082
+externalPort = 3003
+
+[[ports]]
+localPort = 8083
+externalPort = 3002
+
+[[ports]]
+localPort = 8084
+externalPort = 3001
+
+[[ports]]
+localPort = 18624
+externalPort = 3000
+
+[nix]
+channel = "stable-25_05"
+packages = ["libxcrypt"]

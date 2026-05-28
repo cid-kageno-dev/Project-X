@@ -1,0 +1,10 @@
+/home/runner/workspace/artifacts/rust-rt/target/debug/deps/log-f122306b973f98ff.d: /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/lib.rs /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/macros.rs /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/serde.rs /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/__private_api.rs
+
+/home/runner/workspace/artifacts/rust-rt/target/debug/deps/liblog-f122306b973f98ff.rlib: /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/lib.rs /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/macros.rs /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/serde.rs /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/__private_api.rs
+
+/home/runner/workspace/artifacts/rust-rt/target/debug/deps/liblog-f122306b973f98ff.rmeta: /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/lib.rs /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/macros.rs /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/serde.rs /home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/__private_api.rs
+
+/home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/lib.rs:
+/home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/macros.rs:
+/home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/serde.rs:
+/home/runner/workspace/.local/share/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/log-0.4.30/src/__private_api.rs:

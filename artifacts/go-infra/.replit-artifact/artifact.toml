@@ -1,0 +1,17 @@
+kind = "api"
+previewPath = "/api/containers"
+title = "Go Infra Service"
+version = "1.0.0"
+id = "artifacts/go-infra"
+router = "path"
+
+[[services]]
+name = "Go Infra"
+paths = ["/api/containers", "/api/deployments"]
+localPort = 8008
+
+[services.development]
+run = "sh -c 'cd /home/runner/workspace/artifacts/go-infra && go run .'"
+
+[services.env]
+PORT = "8008"

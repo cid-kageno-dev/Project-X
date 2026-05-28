@@ -1,0 +1,1274 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: LocalAI Dev Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: workspaces
+    description: Workspace management
+  - name: files
+    description: File operations
+  - name: ai
+    description: AI chat and agents
+  - name: deployments
+    description: Deployment management
+  - name: containers
+    description: Container management
+  - name: models
+    description: Local AI model management
+  - name: metrics
+    description: Monitoring and metrics
+  - name: git
+    description: Git operations
+  - name: terminal
+    description: Terminal sessions
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ── Workspaces ──────────────────────────────────────────
+  /workspaces:
+    get:
+      operationId: listWorkspaces
+      tags: [workspaces]
+      summary: List all workspaces
+      responses:
+        "200":
+          description: List of workspaces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Workspace"
+    post:
+      operationId: createWorkspace
+      tags: [workspaces]
+      summary: Create a new workspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkspaceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+
+  /workspaces/{id}:
+    get:
+      operationId: getWorkspace
+      tags: [workspaces]
+      summary: Get a workspace by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateWorkspace
+      tags: [workspaces]
+      summary: Update a workspace
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkspaceUpdate"
+      responses:
+        "200":
+          description: Updated workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
+    delete:
+      operationId: deleteWorkspace
+      tags: [workspaces]
+      summary: Delete a workspace
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /workspaces/stats:
+    get:
+      operationId: getWorkspaceStats
+      tags: [workspaces]
+      summary: Get workspace summary statistics
+      responses:
+        "200":
+          description: Workspace stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkspaceStats"
+
+  # ── Files ──────────────────────────────────────────────
+  /workspaces/{workspaceId}/files:
+    get:
+      operationId: listFiles
+      tags: [files]
+      summary: List files in a workspace
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of files
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FileNode"
+    post:
+      operationId: createFile
+      tags: [files]
+      summary: Create a file
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileInput"
+      responses:
+        "201":
+          description: Created file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileNode"
+
+  /workspaces/{workspaceId}/files/{fileId}:
+    get:
+      operationId: getFile
+      tags: [files]
+      summary: Get file content
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: File with content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileWithContent"
+    patch:
+      operationId: updateFile
+      tags: [files]
+      summary: Update file content or metadata
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileUpdate"
+      responses:
+        "200":
+          description: Updated file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileNode"
+    delete:
+      operationId: deleteFile
+      tags: [files]
+      summary: Delete a file
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── AI ────────────────────────────────────────────────
+  /ai/conversations:
+    get:
+      operationId: listConversations
+      tags: [ai]
+      summary: List AI conversations
+      parameters:
+        - name: workspaceId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+    post:
+      operationId: createConversation
+      tags: [ai]
+      summary: Start a new AI conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+
+  /ai/conversations/{id}:
+    get:
+      operationId: getConversation
+      tags: [ai]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationWithMessages"
+    delete:
+      operationId: deleteConversation
+      tags: [ai]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /ai/conversations/{id}/messages:
+    post:
+      operationId: sendMessage
+      tags: [ai]
+      summary: Send a message and get AI response
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "200":
+          description: AI response message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
+  /ai/models:
+    get:
+      operationId: listAiModels
+      tags: [models]
+      summary: List available local AI models
+      responses:
+        "200":
+          description: List of models
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AiModel"
+
+  /ai/models/{name}/pull:
+    post:
+      operationId: pullAiModel
+      tags: [models]
+      summary: Pull/download a model
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Pull status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelPullStatus"
+
+  /ai/models/{name}:
+    delete:
+      operationId: deleteAiModel
+      tags: [models]
+      summary: Delete a local model
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Deployments ───────────────────────────────────────
+  /deployments:
+    get:
+      operationId: listDeployments
+      tags: [deployments]
+      summary: List deployments
+      parameters:
+        - name: workspaceId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of deployments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Deployment"
+    post:
+      operationId: createDeployment
+      tags: [deployments]
+      summary: Trigger a new deployment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeploymentInput"
+      responses:
+        "201":
+          description: Created deployment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deployment"
+
+  /deployments/{id}:
+    get:
+      operationId: getDeployment
+      tags: [deployments]
+      summary: Get deployment details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deployment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deployment"
+
+  /deployments/{id}/rollback:
+    post:
+      operationId: rollbackDeployment
+      tags: [deployments]
+      summary: Rollback to this deployment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: New rollback deployment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deployment"
+
+  /deployments/recent:
+    get:
+      operationId: getRecentDeployments
+      tags: [deployments]
+      summary: Get recent deployments across all workspaces
+      responses:
+        "200":
+          description: Recent deployments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Deployment"
+
+  # ── Containers ────────────────────────────────────────
+  /containers:
+    get:
+      operationId: listContainers
+      tags: [containers]
+      summary: List running containers
+      responses:
+        "200":
+          description: List of containers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Container"
+    post:
+      operationId: createContainer
+      tags: [containers]
+      summary: Create a new container
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContainerInput"
+      responses:
+        "201":
+          description: Created container
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Container"
+
+  /containers/{id}:
+    get:
+      operationId: getContainer
+      tags: [containers]
+      summary: Get container details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Container
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Container"
+    delete:
+      operationId: stopContainer
+      tags: [containers]
+      summary: Stop and remove a container
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Stopped
+
+  /containers/{id}/logs:
+    get:
+      operationId: getContainerLogs
+      tags: [containers]
+      summary: Get container logs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Container log lines
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContainerLogs"
+
+  # ── Metrics ───────────────────────────────────────────
+  /metrics/overview:
+    get:
+      operationId: getMetricsOverview
+      tags: [metrics]
+      summary: Get platform-wide metrics overview
+      responses:
+        "200":
+          description: Metrics overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricsOverview"
+
+  /metrics/workspace/{workspaceId}:
+    get:
+      operationId: getWorkspaceMetrics
+      tags: [metrics]
+      summary: Get metrics for a specific workspace
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Workspace metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkspaceMetrics"
+
+  # ── Git ───────────────────────────────────────────────
+  /git/workspaces/{workspaceId}/status:
+    get:
+      operationId: getGitStatus
+      tags: [git]
+      summary: Get git status of a workspace
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Git status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GitStatus"
+
+  /git/workspaces/{workspaceId}/commits:
+    get:
+      operationId: getGitLog
+      tags: [git]
+      summary: Get recent git commits
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Recent commits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GitCommit"
+    post:
+      operationId: createCommit
+      tags: [git]
+      summary: Create a git commit
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommitInput"
+      responses:
+        "200":
+          description: Commit result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GitCommit"
+
+  /git/workspaces/{workspaceId}/branches:
+    get:
+      operationId: listBranches
+      tags: [git]
+      summary: List git branches
+      parameters:
+        - name: workspaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Branch list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BranchList"
+
+  # ── Terminal Sessions ─────────────────────────────────
+  /terminal/sessions:
+    get:
+      operationId: listTerminalSessions
+      tags: [terminal]
+      summary: List active terminal sessions
+      responses:
+        "200":
+          description: Terminal sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TerminalSession"
+    post:
+      operationId: createTerminalSession
+      tags: [terminal]
+      summary: Create a terminal session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TerminalSessionInput"
+      responses:
+        "201":
+          description: Created session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerminalSession"
+
+  /terminal/sessions/{id}:
+    delete:
+      operationId: closeTerminalSession
+      tags: [terminal]
+      summary: Close a terminal session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Closed
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    # ── Workspace ─────────────────────────────────────
+    Workspace:
+      type: object
+      required: [id, name, language, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        language:
+          type: string
+        status:
+          type: string
+          enum: [idle, running, building, error]
+        githubUrl:
+          type: ["string", "null"]
+        branch:
+          type: ["string", "null"]
+        containerId:
+          type: ["string", "null"]
+        port:
+          type: ["integer", "null"]
+        lastActiveAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    WorkspaceInput:
+      type: object
+      required: [name, language]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        language:
+          type: string
+        githubUrl:
+          type: string
+        branch:
+          type: string
+
+    WorkspaceUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        branch:
+          type: string
+
+    WorkspaceStats:
+      type: object
+      required: [total, running, idle, building, error, languageBreakdown]
+      properties:
+        total:
+          type: integer
+        running:
+          type: integer
+        idle:
+          type: integer
+        building:
+          type: integer
+        error:
+          type: integer
+        languageBreakdown:
+          type: array
+          items:
+            type: object
+            required: [language, count]
+            properties:
+              language:
+                type: string
+              count:
+                type: integer
+
+    # ── Files ─────────────────────────────────────────
+    FileNode:
+      type: object
+      required: [id, workspaceId, name, path, type, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        workspaceId:
+          type: integer
+        name:
+          type: string
+        path:
+          type: string
+        type:
+          type: string
+          enum: [file, directory]
+        language:
+          type: ["string", "null"]
+        size:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    FileWithContent:
+      type: object
+      required: [id, workspaceId, name, path, type, content, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        workspaceId:
+          type: integer
+        name:
+          type: string
+        path:
+          type: string
+        type:
+          type: string
+        language:
+          type: ["string", "null"]
+        content:
+          type: string
+        size:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    FileInput:
+      type: object
+      required: [name, path, type]
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        type:
+          type: string
+          enum: [file, directory]
+        content:
+          type: string
+        language:
+          type: string
+
+    FileUpdate:
+      type: object
+      properties:
+        content:
+          type: string
+        name:
+          type: string
+        path:
+          type: string
+
+    # ── AI Conversations ──────────────────────────────
+    Conversation:
+      type: object
+      required: [id, title, model, messageCount, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        workspaceId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        model:
+          type: string
+        messageCount:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    ConversationInput:
+      type: object
+      required: [title, model]
+      properties:
+        title:
+          type: string
+        model:
+          type: string
+        workspaceId:
+          type: integer
+
+    ConversationWithMessages:
+      type: object
+      required: [id, title, model, messages, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        workspaceId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        model:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    Message:
+      type: object
+      required: [id, conversationId, role, content, createdAt]
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+          enum: [user, assistant, system]
+        content:
+          type: string
+        tokensUsed:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    MessageInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+        model:
+          type: string
+
+    # ── AI Models ─────────────────────────────────────
+    AiModel:
+      type: object
+      required: [name, provider, status, contextWindow]
+      properties:
+        name:
+          type: string
+        displayName:
+          type: string
+        provider:
+          type: string
+          enum: [ollama, openai, anthropic, local]
+        status:
+          type: string
+          enum: [available, downloading, not_installed]
+        sizeMb:
+          type: ["integer", "null"]
+        contextWindow:
+          type: integer
+        description:
+          type: ["string", "null"]
+
+    ModelPullStatus:
+      type: object
+      required: [name, status, progress]
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+        progress:
+          type: integer
+
+    # ── Deployments ───────────────────────────────────
+    Deployment:
+      type: object
+      required: [id, workspaceId, status, environment, createdAt]
+      properties:
+        id:
+          type: integer
+        workspaceId:
+          type: integer
+        workspaceName:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, building, deploying, success, failed, rolled_back]
+        environment:
+          type: string
+          enum: [development, staging, production]
+        url:
+          type: ["string", "null"]
+        commitSha:
+          type: ["string", "null"]
+        commitMessage:
+          type: ["string", "null"]
+        buildDuration:
+          type: ["integer", "null"]
+        errorMessage:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        finishedAt:
+          type: ["string", "null"]
+
+    DeploymentInput:
+      type: object
+      required: [workspaceId, environment]
+      properties:
+        workspaceId:
+          type: integer
+        environment:
+          type: string
+          enum: [development, staging, production]
+        commitSha:
+          type: string
+        commitMessage:
+          type: string
+
+    # ── Containers ────────────────────────────────────
+    Container:
+      type: object
+      required: [id, workspaceId, name, image, status, createdAt]
+      properties:
+        id:
+          type: integer
+        workspaceId:
+          type: integer
+        name:
+          type: string
+        image:
+          type: string
+        status:
+          type: string
+          enum: [running, stopped, paused, exited, creating]
+        port:
+          type: ["integer", "null"]
+        cpuPercent:
+          type: ["number", "null"]
+        memoryMb:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+        startedAt:
+          type: ["string", "null"]
+
+    ContainerInput:
+      type: object
+      required: [workspaceId, name, image]
+      properties:
+        workspaceId:
+          type: integer
+        name:
+          type: string
+        image:
+          type: string
+        port:
+          type: integer
+        envVars:
+          type: object
+          additionalProperties:
+            type: string
+
+    ContainerLogs:
+      type: object
+      required: [containerId, lines]
+      properties:
+        containerId:
+          type: integer
+        lines:
+          type: array
+          items:
+            type: object
+            required: [timestamp, stream, message]
+            properties:
+              timestamp:
+                type: string
+              stream:
+                type: string
+                enum: [stdout, stderr]
+              message:
+                type: string
+
+    # ── Metrics ───────────────────────────────────────
+    MetricsOverview:
+      type: object
+      required: [cpuPercent, memoryMb, memoryTotalMb, activeContainers, activeWorkspaces, totalDeployments, deploymentSuccessRate, recentActivity]
+      properties:
+        cpuPercent:
+          type: number
+        memoryMb:
+          type: integer
+        memoryTotalMb:
+          type: integer
+        activeContainers:
+          type: integer
+        activeWorkspaces:
+          type: integer
+        totalDeployments:
+          type: integer
+        deploymentSuccessRate:
+          type: number
+        recentActivity:
+          type: array
+          items:
+            type: object
+            required: [timestamp, event, workspace]
+            properties:
+              timestamp:
+                type: string
+              event:
+                type: string
+              workspace:
+                type: string
+
+    WorkspaceMetrics:
+      type: object
+      required: [workspaceId, cpuPercent, memoryMb, requestsPerMinute, errorRate, uptime]
+      properties:
+        workspaceId:
+          type: integer
+        cpuPercent:
+          type: number
+        memoryMb:
+          type: integer
+        requestsPerMinute:
+          type: number
+        errorRate:
+          type: number
+        uptime:
+          type: integer
+
+    # ── Git ───────────────────────────────────────────
+    GitStatus:
+      type: object
+      required: [workspaceId, branch, staged, unstaged, untracked, ahead, behind]
+      properties:
+        workspaceId:
+          type: integer
+        branch:
+          type: string
+        staged:
+          type: array
+          items:
+            type: string
+        unstaged:
+          type: array
+          items:
+            type: string
+        untracked:
+          type: array
+          items:
+            type: string
+        ahead:
+          type: integer
+        behind:
+          type: integer
+
+    GitCommit:
+      type: object
+      required: [sha, message, author, date]
+      properties:
+        sha:
+          type: string
+        message:
+          type: string
+        author:
+          type: string
+        date:
+          type: string
+
+    CommitInput:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        files:
+          type: array
+          items:
+            type: string
+
+    BranchList:
+      type: object
+      required: [current, branches]
+      properties:
+        current:
+          type: string
+        branches:
+          type: array
+          items:
+            type: string
+
+    # ── Terminal ──────────────────────────────────────
+    TerminalSession:
+      type: object
+      required: [id, workspaceId, name, status, createdAt]
+      properties:
+        id:
+          type: integer
+        workspaceId:
+          type: integer
+        name:
+          type: string
+        status:
+          type: string
+          enum: [active, closed]
+        shell:
+          type: string
+        createdAt:
+          type: string
+
+    TerminalSessionInput:
+      type: object
+      required: [workspaceId, name]
+      properties:
+        workspaceId:
+          type: integer
+        name:
+          type: string
+        shell:
+          type: string

@@ -1,0 +1,16 @@
+{
+  "name": "@workspace/node-git",
+  "version": "1.0.0",
+  "description": "NovaDev Git & Plugin Service — Node.js",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.0.0",
+    "simple-git": "^3.27.0"
+  }
+}

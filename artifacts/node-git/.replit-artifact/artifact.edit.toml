@@ -1,0 +1,17 @@
+kind = "api"
+previewPath = "/api/git"
+title = "Node Git Service"
+version = "1.0.0"
+id = "artifacts/node-git"
+router = "path"
+
+[[services]]
+name = "Node Git"
+paths = ["/api/git"]
+localPort = 8084
+
+[services.development]
+run = "sh -c 'cd /home/runner/workspace/artifacts/node-git && node src/index.js'"
+
+[services.env]
+PORT = "8084"

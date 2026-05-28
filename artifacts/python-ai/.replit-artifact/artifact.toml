@@ -1,0 +1,17 @@
+kind = "api"
+previewPath = "/api/ai"
+title = "Python AI Service"
+version = "1.0.0"
+id = "artifacts/python-ai"
+router = "path"
+
+[[services]]
+name = "Python AI"
+paths = ["/api/ai"]
+localPort = 8082
+
+[services.development]
+run = "sh -c 'cd /home/runner/workspace/artifacts/python-ai && python -m uvicorn main:app --host 0.0.0.0 --port $PORT --reload'"
+
+[services.env]
+PORT = "8082"
