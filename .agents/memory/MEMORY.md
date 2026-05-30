@@ -1,2 +1,0 @@
-- [Polyglot service ports](polyglot-ports.md) — Go uses port 8008 (not 8081), others: Python=8082, Rust=8083, Node.js=8084
-- [Artifact TOML bootstrap](artifact-toml-bootstrap.md) — verifyAndReplaceArtifactToml needs existing file; use bash cp to init, then call it for updates
